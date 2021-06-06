@@ -10,6 +10,7 @@ require (
 	github.com/aws/constructs-go/constructs/v10 v10.0.5
 	github.com/aws/constructs-go/constructs/v3 v3.3.75
 	github.com/aws/jsii-runtime-go v1.30.0
+	github.com/golang/mock v1.5.0
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.8.0
 )
