@@ -26,9 +26,6 @@ func NewDB() (*DB, error){
 	return &DB{
 		client: dynamodb.NewFromConfig(cfg),
 	}, nil
-
-
-
 }
 
 func (D DB) Get(id string) (string, error) {
