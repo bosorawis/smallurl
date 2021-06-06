@@ -19,7 +19,7 @@ fmt:    ## format the go source files
 	go fmt ./goapp/...
 
 test:
-	go test ./goapp/...
+	go test ./goapp/... -count=1
 
 build:
 	go build -o bin/handler ./goapp/cmd

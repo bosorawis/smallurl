@@ -1,19 +1,10 @@
 package goapp
 
-import (
-	"time"
-)
+import "crypto/sha1"
 
 type Repository interface {
 	Get(id string) (string, error)
 	Put(url, id string) error
-}
-
-type Url struct {
-	ID string
-	DestinationURL string
-	Created time.Time
-	Expired time.Time
 }
 
 func Put(r Repository, url string) (string, error){
@@ -21,5 +12,9 @@ func Put(r Repository, url string) (string, error){
 	return "", nil
 }
 
-
-
+func makeId(url string) string {
+	h := sha1.New()
+	h.Write([]byte(url))
+	hashed := h.Sum(nil)
+	return string(hashed)
+}
