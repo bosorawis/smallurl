@@ -7,6 +7,10 @@ type Repository interface {
 	Put(url, id string) error
 }
 
+func PutWithAlias(r Repository, url string) error{
+	return nil
+}
+
 func Put(r Repository, url string) (string, error){
 
 	return "", nil
