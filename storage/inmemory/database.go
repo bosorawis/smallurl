@@ -2,7 +2,7 @@ package inmemory
 
 import (
 	"context"
-	"github.com/dihmuzikien/smallurl/goapp/domain/url"
+	"github.com/dihmuzikien/smallurl/domain/url"
 )
 
 type Db struct {

@@ -43,7 +43,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func (s *Server) handleList() http.HandlerFunc {
+func (s *Server) handleListUrl() http.HandlerFunc {
 	type model struct {
 		ID          string `json:"id"`
 		Destination string `json:"destination"`
@@ -75,7 +75,7 @@ func (s *Server) handleList() http.HandlerFunc {
 }
 
 
-func (s *Server) handlePut() http.HandlerFunc {
+func (s *Server) handleCreateUrl() http.HandlerFunc {
 	type request struct {
 		ID          string `json:"id"`
 		Destination string `json:"destination"`

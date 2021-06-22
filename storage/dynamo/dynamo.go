@@ -10,8 +10,6 @@ type dynamoAPI interface {
 	GetItem(ctx context.Context, params *dynamodb.GetItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
 }
 
-
-
 type Db struct {
 	client dynamoAPI
 }

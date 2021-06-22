@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	url "github.com/dihmuzikien/smallurl/goapp/domain/url"
+	url "github.com/dihmuzikien/smallurl/domain/url"
 	gomock "github.com/golang/mock/gomock"
 )
 
