@@ -2,7 +2,12 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"time"
+)
+
+var (
+	ErrNotFound = errors.New("Cannot find URL with matching ID")
 )
 
 // Url represents model of URL redirection in the repository
@@ -13,7 +18,7 @@ type Url struct {
 }
 
 type UrlRepository interface {
-	Get(ctx context.Context, id string) (string, error)
+	Get(ctx context.Context, id string) (Url, error)
 	Put(ctx context.Context, url Url) error
 	List(ctx context.Context) ([]Url, error)
 	Delete(ctx context.Context, id string) error

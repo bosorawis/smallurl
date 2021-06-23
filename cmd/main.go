@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/dihmuzikien/smallurl/server"
-	"github.com/dihmuzikien/smallurl/storage/inmemory"
+	http2 "github.com/dihmuzikien/smallurl/url/port/http"
+	"github.com/dihmuzikien/smallurl/url/repository/inmemory"
 	"log"
 	"net/http"
 )
 
 func main(){
-	db := inmemory.NewDb()
-	server,_ := server.NewServer(db)
+	db := inmemory.New()
+	server,_ := http2.NewServer(db)
 	log.Fatalln(http.ListenAndServe(":8080", server))
 }

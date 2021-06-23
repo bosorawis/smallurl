@@ -1,4 +1,4 @@
-package server
+package http
 
 import (
 	"encoding/json"
@@ -72,6 +72,9 @@ func (s *Server) handleCreateUrl() http.HandlerFunc {
 	type request struct {
 		Destination string `json:"destination"`
 	}
+	type response struct {
+		ID string `json:"id"`
+	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		var d request
 		err := s.decode(w, r, &d)
@@ -80,11 +83,14 @@ func (s *Server) handleCreateUrl() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		//err = s.db.Put(r.Context(),d.ID, d.Destination)
+		url, err := s.svc.Create(r.Context(), d.Destination)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		s.respond(w, r, nil, http.StatusCreated)
+		resp := response{
+			ID: url.ID,
+		}
+		s.respond(w, r, resp, http.StatusCreated)
 	}
 }
