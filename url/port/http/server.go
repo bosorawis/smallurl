@@ -13,7 +13,7 @@ type Server struct {
 	router chi.Router
 }
 
-func NewServer(svc domain.UrlUseCase) (*Server, error){
+func New(svc domain.UrlUseCase) (*Server, error){
 	router := chi.NewRouter()
 	server := &Server{
 		svc: svc,

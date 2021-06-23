@@ -12,6 +12,12 @@ type urlUsecase struct {
 	articleRepo    domain.UrlRepository
 }
 
+func NewUrlUsecase(r domain.UrlRepository) domain.UrlUseCase{
+	return &urlUsecase{
+		articleRepo: r,
+	}
+}
+
 func (u *urlUsecase) Create(ctx context.Context, destination string) (domain.Url, error) {
 	id := makeId(destination)
 	url := domain.Url{
