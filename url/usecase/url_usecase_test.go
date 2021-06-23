@@ -1,9 +1,6 @@
-package url
+package usecase
 
-import (
-	"testing"
-)
-
+import "testing"
 
 func TestMakeId(t *testing.T){
 	t.Run("Different input different result", func(t *testing.T){

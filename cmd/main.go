@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/dihmuzikien/smallurl/goapp/server"
-	"github.com/dihmuzikien/smallurl/goapp/storage/inmemory"
+	"github.com/dihmuzikien/smallurl/server"
+	"github.com/dihmuzikien/smallurl/storage/inmemory"
 	"log"
 	"net/http"
 )

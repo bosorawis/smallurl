@@ -3,7 +3,7 @@ package server
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/dihmuzikien/smallurl/domain/url/mock"
+	"github.com/dihmuzikien/smallurl/domain/mocks"
 	"github.com/golang/mock/gomock"
 	"net/http"
 	"net/http/httptest"
@@ -14,10 +14,10 @@ func TestServer_HttpPost(t *testing.T){
 	t.Run("Successful put", func(t *testing.T){
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		db := mock.NewMockRepository(ctrl)
+		db := mocks.NewMockUrlUseCase(ctrl)
 		id := "test-id"
 		url := "http://localhost"
-		db.EXPECT().Put(gomock.Any(), gomock.Eq(id), gomock.Eq(url)).Return(nil)
+		db.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
 		sut, _ := NewServer(db)
 		server := httptest.NewServer(sut)
 		defer server.Close()

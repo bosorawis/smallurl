@@ -16,10 +16,10 @@ clean:  ## go clean
 	rm -rf bin/
 
 fmt:    ## format the go source files
-	go fmt ./goapp/...
+	go fmt ./...
 
 test:
-	go test ./goapp/... -count=1
+	go test ./... -count=1
 
 build:
-	go build -o bin/handler ./goapp/cmd
+	go build -o bin/handler ./cmd

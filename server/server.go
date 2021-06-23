@@ -3,20 +3,20 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/dihmuzikien/smallurl/domain/url"
+	"github.com/dihmuzikien/smallurl/domain"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )
 
 type Server struct {
-	db url.Repository
+	svc domain.UrlUseCase
 	router chi.Router
 }
 
-func NewServer(r url.Repository) (*Server, error){
+func NewServer(svc domain.UrlUseCase) (*Server, error){
 	router := chi.NewRouter()
 	server := &Server{
-		db: r,
+		svc: svc,
 		router: router,
 	}
 	server.routes()
@@ -24,7 +24,6 @@ func NewServer(r url.Repository) (*Server, error){
 }
 
 func (s *Server) respond(w http.ResponseWriter, r *http.Request, data interface{}, status int){
-	w.WriteHeader(status)
 	if data != nil {
 		err := json.NewEncoder(w).Encode(data)
 		if err != nil {
@@ -32,6 +31,8 @@ func (s *Server) respond(w http.ResponseWriter, r *http.Request, data interface{
 			return
 		}
 	}
+	w.WriteHeader(status)
+	w.Header().Set("Content-Type", "application/json")
 }
 
 func (s *Server) decode(w http.ResponseWriter, r *http.Request, data interface{}) error {
@@ -44,56 +45,46 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 
 func (s *Server) handleListUrl() http.HandlerFunc {
-	type model struct {
+	type response struct {
 		ID          string `json:"id"`
 		Destination string `json:"destination"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
-		items, err := s.db.List(r.Context())
+		items, err := s.svc.List(r.Context())
 		if err != nil {
 			fmt.Println("failed to get url", err)
 			http.Error(w, "failed to list URL", 500)
 			return
 		}
-		m := make([]model, len(items))
+		m := make([]response, len(items))
 		for i, v := range items {
-			m[i] = model{
+			m[i] = response{
 				ID:          v.ID,
 				Destination: v.Destination,
 			}
 		}
-		data, err := json.Marshal(items)
-		if err != nil {
-			fmt.Println("failed to parse response", err)
-			http.Error(w, "failed to list URL", 500)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write(data)
+		s.respond(w, r, items, http.StatusOK)
 	}
 }
 
 
 func (s *Server) handleCreateUrl() http.HandlerFunc {
 	type request struct {
-		ID          string `json:"id"`
 		Destination string `json:"destination"`
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		var d request
-		err := json.NewDecoder(r.Body).Decode(&d)
+		err := s.decode(w, r, &d)
 		if err != nil {
 			fmt.Println("failed to parse body", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		err = s.db.Put(r.Context(),d.ID, d.Destination)
+		//err = s.db.Put(r.Context(),d.ID, d.Destination)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusCreated)
+		s.respond(w, r, nil, http.StatusCreated)
 	}
 }
