@@ -15,14 +15,14 @@ type data struct {
 	created time.Time
 }
 
-func New() *Db{
+func New() *Db {
 	return &Db{
 		storage: make(map[string]data),
 	}
 
 }
 func (d *Db) Put(ctx context.Context, url domain.Url) error {
-	d.storage[url.ID] = data {
+	d.storage[url.ID] = data{
 		dest: url.Destination,
 		created: url.Created,
 	}
@@ -36,7 +36,7 @@ func (d *Db) Delete(ctx context.Context, id string) error {
 
 func (d *Db) Get(ctx context.Context, id string) (domain.Url, error) {
 	if _, ok := d.storage[id]; !ok {
-		return domain.Url{}, domain.ErrNotFound
+		return domain.Url{}, domain.RepoGetNotFoundError
 	}
 	u := d.storage[id]
 	return domain.Url{

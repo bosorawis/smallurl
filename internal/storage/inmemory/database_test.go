@@ -27,7 +27,6 @@ func TestFullDb(t *testing.T) {
 		if putErr != nil {
 			t.Error("unexpected error", putErr)
 		}
-
 		getRes, getErr := db.Get(context.TODO(), testcase.id)
 		if getErr != nil {
 			t.Error("unexpected error", getErr)
@@ -43,10 +42,9 @@ func TestFullDb(t *testing.T) {
 		if delErr != nil {
 			t.Error("unexpected error", delErr)
 		}
-
 		_, endErr := db.Get(context.TODO(), testcase.id)
-		if endErr != domain.ErrNotFound {
-			t.Errorf("want %v got %v", domain.ErrNotFound, delErr)
+		if endErr != domain.RepoGetNotFoundError {
+			t.Errorf("want %v got %v", domain.RepoGetNotFoundError, delErr)
 		}
 	})
 
@@ -106,12 +104,12 @@ func TestDb_Get(t *testing.T) {
 	t.Run("Get not found returns ErrNotfound", func(t *testing.T){
 		db := New()
 		_, err := db.Get(context.TODO(), "testID")
-		if err != domain.ErrNotFound {
+		if err != domain.RepoGetNotFoundError {
 			t.Errorf("Expected ErrNotFound but got %v", err)
 		}
 	})
 
-	t.Run("Get not found returns normally", func(t *testing.T){
+	t.Run("not found returns normally", func(t *testing.T){
 		db := New()
 		current := time.Now()
 		dest := "destination.com"

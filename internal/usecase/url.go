@@ -12,7 +12,8 @@ type urlUsecase struct {
 	articleRepo    domain.UrlRepository
 }
 
-func NewUrlUsecase(r domain.UrlRepository) domain.UrlUseCase{
+
+func NewUrlUseCase(r domain.UrlRepository) domain.UrlUseCase{
 	return &urlUsecase{
 		articleRepo: r,
 	}
@@ -56,7 +57,7 @@ func (u *urlUsecase) GetById(ctx context.Context, id string) (domain.Url, error)
 func (u *urlUsecase) List(ctx context.Context) ([]domain.Url, error) {
 	result, err := u.articleRepo.List(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to list data %w", err)
+		return nil, fmt.Errorf("urlusecase: failed to list data %w", err)
 	}
 	return result, nil
 }

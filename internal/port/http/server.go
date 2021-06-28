@@ -94,3 +94,42 @@ func (s *Server) handleCreateUrl() http.HandlerFunc {
 		s.respond(w, r, resp, http.StatusCreated)
 	}
 }
+
+
+
+
+func (s *Server) handleCreateUrlWithAlias() http.HandlerFunc {
+	type request struct {
+		Alias       string `json:"alias"`
+		Destination string `json:"destination"`
+	}
+	type response struct {
+		ID string `json:"id"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		var d request
+		err := s.decode(w, r, &d)
+		if err != nil {
+			fmt.Println("failed to parse body", err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if len(d.Alias) <= 3 {
+			http.Error(w, "alias must be longer than 3 characters", http.StatusBadRequest)
+			return
+		}
+
+		url, err := s.svc.CreateWithId(r.Context(), d.Alias, d.Destination)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		resp := response{
+			ID: url.ID,
+		}
+		s.respond(w, r, resp, http.StatusCreated)
+
+	}
+}
+
