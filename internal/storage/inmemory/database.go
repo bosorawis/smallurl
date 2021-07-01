@@ -11,7 +11,7 @@ type Db struct {
 }
 
 type data struct {
-	dest string
+	dest    string
 	created time.Time
 }
 
@@ -23,7 +23,7 @@ func New() *Db {
 }
 func (d *Db) Put(ctx context.Context, url domain.Url) error {
 	d.storage[url.ID] = data{
-		dest: url.Destination,
+		dest:    url.Destination,
 		created: url.Created,
 	}
 	return nil
@@ -40,18 +40,16 @@ func (d *Db) Get(ctx context.Context, id string) (domain.Url, error) {
 	}
 	u := d.storage[id]
 	return domain.Url{
-		ID: id,
+		ID:          id,
 		Destination: u.dest,
-		Created: u.created,
+		Created:     u.created,
 	}, nil
 }
 
 func (d *Db) List(ctx context.Context) ([]domain.Url, error) {
 	var urls []domain.Url
-	for k, v := range d.storage{
+	for k, v := range d.storage {
 		urls = append(urls, domain.Url{ID: k, Destination: v.dest, Created: v.created})
 	}
 	return urls, nil
 }
-
-

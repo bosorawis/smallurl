@@ -7,24 +7,22 @@ import (
 )
 
 type RepoError struct {
-	Op 	string
+	Op  string
 	Err error
 }
 
-
-
 var (
-	RepoPutError = errors.New("failed to save URL")
+	RepoPutError         = errors.New("failed to save URL")
 	RepoGetNotFoundError = errors.New("cannot find URL with matching ID")
-	RepoListError = errors.New("failed to list URLs")
-	RepoDeleteError = errors.New("failed to delete URL")
+	RepoListError        = errors.New("failed to list URLs")
+	RepoDeleteError      = errors.New("failed to delete URL")
 )
 
 // Url represents model of URL redirection in the storage
 type Url struct {
-	ID string
+	ID          string
 	Destination string
-	Created time.Time
+	Created     time.Time
 }
 
 type UrlRepository interface {

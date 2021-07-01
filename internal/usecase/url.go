@@ -9,11 +9,10 @@ import (
 )
 
 type urlUsecase struct {
-	articleRepo    domain.UrlRepository
+	articleRepo domain.UrlRepository
 }
 
-
-func NewUrlUseCase(r domain.UrlRepository) domain.UrlUseCase{
+func NewUrlUseCase(r domain.UrlRepository) domain.UrlUseCase {
 	return &urlUsecase{
 		articleRepo: r,
 	}
@@ -22,9 +21,9 @@ func NewUrlUseCase(r domain.UrlRepository) domain.UrlUseCase{
 func (u *urlUsecase) Create(ctx context.Context, destination string) (domain.Url, error) {
 	id := makeId(destination)
 	url := domain.Url{
-		ID: id,
+		ID:          id,
 		Destination: destination,
-		Created: time.Now(),
+		Created:     time.Now(),
 	}
 	err := u.articleRepo.Put(ctx, url)
 	if err != nil {
@@ -35,9 +34,9 @@ func (u *urlUsecase) Create(ctx context.Context, destination string) (domain.Url
 
 func (u *urlUsecase) CreateWithId(ctx context.Context, id, destination string) (domain.Url, error) {
 	url := domain.Url{
-		ID: id,
+		ID:          id,
 		Destination: destination,
-		Created: time.Now(),
+		Created:     time.Now(),
 	}
 	err := u.articleRepo.Put(ctx, url)
 	if err != nil {
@@ -48,7 +47,7 @@ func (u *urlUsecase) CreateWithId(ctx context.Context, id, destination string) (
 
 func (u *urlUsecase) GetById(ctx context.Context, id string) (domain.Url, error) {
 	res, err := u.articleRepo.Get(ctx, id)
-	if err != nil{
+	if err != nil {
 		return domain.Url{}, err
 	}
 	return res, nil
@@ -62,15 +61,13 @@ func (u *urlUsecase) List(ctx context.Context) ([]domain.Url, error) {
 	return result, nil
 }
 
-func (u *urlUsecase) Delete(ctx context.Context, id string) error{
+func (u *urlUsecase) Delete(ctx context.Context, id string) error {
 	err := u.articleRepo.Delete(ctx, id)
 	if err != nil {
 		return fmt.Errorf("failed to delete %w", err)
 	}
 	return nil
 }
-
-
 
 func makeId(url string) string {
 	h := sha1.New()

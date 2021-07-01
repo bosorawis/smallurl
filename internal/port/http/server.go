@@ -9,21 +9,21 @@ import (
 )
 
 type Server struct {
-	svc domain.UrlUseCase
+	svc    domain.UrlUseCase
 	router chi.Router
 }
 
-func New(svc domain.UrlUseCase) (*Server, error){
+func New(svc domain.UrlUseCase) (*Server, error) {
 	router := chi.NewRouter()
 	server := &Server{
-		svc: svc,
+		svc:    svc,
 		router: router,
 	}
 	server.routes()
 	return server, nil
 }
 
-func (s *Server) respond(w http.ResponseWriter, r *http.Request, data interface{}, status int){
+func (s *Server) respond(w http.ResponseWriter, r *http.Request, data interface{}, status int) {
 	if data != nil {
 		err := json.NewEncoder(w).Encode(data)
 		if err != nil {
@@ -42,7 +42,6 @@ func (s *Server) decode(w http.ResponseWriter, r *http.Request, data interface{}
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
 }
-
 
 func (s *Server) handleListUrl() http.HandlerFunc {
 	type response struct {
@@ -66,7 +65,6 @@ func (s *Server) handleListUrl() http.HandlerFunc {
 		s.respond(w, r, items, http.StatusOK)
 	}
 }
-
 
 func (s *Server) handleCreateUrl() http.HandlerFunc {
 	type request struct {
@@ -94,9 +92,6 @@ func (s *Server) handleCreateUrl() http.HandlerFunc {
 		s.respond(w, r, resp, http.StatusCreated)
 	}
 }
-
-
-
 
 func (s *Server) handleCreateUrlWithAlias() http.HandlerFunc {
 	type request struct {
@@ -131,4 +126,3 @@ func (s *Server) handleCreateUrlWithAlias() http.HandlerFunc {
 		s.respond(w, r, resp, http.StatusCreated)
 	}
 }
-

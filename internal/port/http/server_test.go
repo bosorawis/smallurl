@@ -13,14 +13,13 @@ import (
 	"time"
 )
 
-func performRequestWithBody(r http.Handler, method, path , body string) *httptest.ResponseRecorder {
+func performRequestWithBody(r http.Handler, method, path, body string) *httptest.ResponseRecorder {
 	reader := strings.NewReader(body)
 	req, _ := http.NewRequest(method, path, reader)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 	return w
 }
-
 
 func TestHandleListUrl(t *testing.T) {
 	t.Run("test list handler", func(t *testing.T) {
@@ -71,32 +70,32 @@ func TestHandleListUrl(t *testing.T) {
 	})
 }
 
-func TestHandleCreateUrl(t *testing.T){
+func TestHandleCreateUrl(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	t.Cleanup(ctrl.Finish)
 
-	retList := []domain.Url {
+	retList := []domain.Url{
 		{
-			ID: "test1",
+			ID:          "test1",
 			Destination: "https://google.com",
-			Created: time.Now().Add(-100 * time.Second),
+			Created:     time.Now().Add(-100 * time.Second),
 		},
 		{
-			ID: "test2",
+			ID:          "test2",
 			Destination: "https://yahoo.com",
-			Created: time.Now().Add(-200 * time.Second),
+			Created:     time.Now().Add(-200 * time.Second),
 		},
 		{
-			ID: "test3",
+			ID:          "test3",
 			Destination: "https://github.com",
-			Created: time.Now().Add(-300 * time.Second),
+			Created:     time.Now().Add(-300 * time.Second),
 		},
 	}
 
 	m := mocks.NewMockUrlUseCase(ctrl)
 	m.EXPECT().List(gomock.Any()).Return(retList, nil)
 	type expectedResponse struct {
-		ID string `json:"id"`
+		ID          string `json:"id"`
 		Destination string `json:"destination"`
 	}
 	sut, _ := New(m)
@@ -105,7 +104,7 @@ func TestHandleCreateUrl(t *testing.T){
 	handler := sut.handleListUrl()
 	handler(w, req)
 	resp := w.Result()
-	if resp.StatusCode != http.StatusOK{
+	if resp.StatusCode != http.StatusOK {
 		t.Errorf("want %v got %v", http.StatusOK, resp.StatusCode)
 	}
 	var body []expectedResponse
@@ -114,21 +113,20 @@ func TestHandleCreateUrl(t *testing.T){
 	if err != nil {
 		t.Errorf("unexpected error decoding response %v", err)
 	}
-	if len(body) != len(retList){
+	if len(body) != len(retList) {
 		t.Errorf("response length not match expected result")
 	}
 }
 
-
-func TestHandleCreateUrlWithAlias(t *testing.T){
-	t.Run("create URL with alias succeed", func(t *testing.T){
+func TestHandleCreateUrlWithAlias(t *testing.T) {
+	t.Run("create URL with alias succeed", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		t.Cleanup(ctrl.Finish)
 
-		testSubj := domain.Url {
-			ID: "test1",
+		testSubj := domain.Url{
+			ID:          "test1",
 			Destination: "https://google.com",
-			Created: time.Now().Add(-100 * time.Second),
+			Created:     time.Now().Add(-100 * time.Second),
 		}
 		m := mocks.NewMockUrlUseCase(ctrl)
 		m.EXPECT().CreateWithId(gomock.Any(), gomock.Eq(testSubj.ID), gomock.Eq(testSubj.Destination)).Return(testSubj, nil)
@@ -142,7 +140,7 @@ func TestHandleCreateUrlWithAlias(t *testing.T){
 		handler := sut.handleCreateUrlWithAlias()
 		handler(w, req)
 		resp := w.Result()
-		if resp.StatusCode != http.StatusOK{
+		if resp.StatusCode != http.StatusOK {
 			t.Errorf("want %v got %v", http.StatusOK, resp.StatusCode)
 		}
 		var respbody expectedResponse
@@ -150,12 +148,12 @@ func TestHandleCreateUrlWithAlias(t *testing.T){
 		if err != nil {
 			t.Errorf("unexpected error decoding response %v", err)
 		}
-		if respbody.ID != testSubj.ID{
+		if respbody.ID != testSubj.ID {
 			t.Errorf("want %v got %v", testSubj.ID, respbody.ID)
 		}
 	})
 
-	t.Run("CreateUrlWithAlias invalid alias returns 400", func(t *testing.T){
+	t.Run("CreateUrlWithAlias invalid alias returns 400", func(t *testing.T) {
 		testcases := []struct {
 			body string
 		}{
@@ -178,7 +176,7 @@ func TestHandleCreateUrlWithAlias(t *testing.T){
 			handler := sut.handleCreateUrlWithAlias()
 			handler(w, req)
 			resp := w.Result()
-			if resp.StatusCode != http.StatusBadRequest{
+			if resp.StatusCode != http.StatusBadRequest {
 				t.Errorf("want %v got %v", http.StatusBadRequest, resp.StatusCode)
 			}
 		}

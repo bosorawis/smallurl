@@ -65,7 +65,7 @@ func TestFullDb(t *testing.T) {
 				created: time.Now().Add(time.Minute * 300),
 			},
 		}
-		testcaseContains := func(url domain.Url) bool{
+		testcaseContains := func(url domain.Url) bool {
 			for _, v := range testcases {
 				if url.ID == v.id && url.Destination == v.dest && url.Created == v.created {
 					return true
@@ -101,7 +101,7 @@ func TestFullDb(t *testing.T) {
 }
 
 func TestDb_Get(t *testing.T) {
-	t.Run("Get not found returns ErrNotfound", func(t *testing.T){
+	t.Run("Get not found returns ErrNotfound", func(t *testing.T) {
 		db := New()
 		_, err := db.Get(context.TODO(), "testID")
 		if err != domain.RepoGetNotFoundError {
@@ -109,12 +109,12 @@ func TestDb_Get(t *testing.T) {
 		}
 	})
 
-	t.Run("not found returns normally", func(t *testing.T){
+	t.Run("not found returns normally", func(t *testing.T) {
 		db := New()
 		current := time.Now()
 		dest := "destination.com"
 		db.storage["testID"] = data{
-			dest: dest,
+			dest:    dest,
 			created: current,
 		}
 		res, err := db.Get(context.TODO(), "testID")

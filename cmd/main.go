@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func main(){
+func main() {
 	db := inmemory2.New()
 	urlSvc := usecase2.NewUrlUseCase(db)
 	srv, err := http2.New(urlSvc)
