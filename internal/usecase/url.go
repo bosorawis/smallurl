@@ -19,7 +19,10 @@ func NewUrlUseCase(r domain.UrlRepository) domain.UrlUseCase {
 }
 
 func (u *urlUsecase) Create(ctx context.Context, destination string) (domain.Url, error) {
-	id := makeId(destination)
+	id, iErr := makeId(destination)
+	if iErr != nil {
+		return domain.Url{}, iErr
+	}
 	url := domain.Url{
 		ID:          id,
 		Destination: destination,
@@ -69,9 +72,12 @@ func (u *urlUsecase) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func makeId(url string) string {
+func makeId(url string) (string, error) {
 	h := sha1.New()
-	h.Write([]byte(url))
+	_, err := h.Write([]byte(url))
+	if err != nil {
+		return "", err
+	}
 	hashed := h.Sum(nil)
-	return string(hashed)
+	return string(hashed), nil
 }
