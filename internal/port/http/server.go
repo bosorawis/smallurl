@@ -129,7 +129,6 @@ func (s *Server) handleCreateUrlWithAlias() http.HandlerFunc {
 			ID: url.ID,
 		}
 		s.respond(w, r, resp, http.StatusCreated)
-
 	}
 }
 
