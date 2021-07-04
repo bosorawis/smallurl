@@ -34,7 +34,7 @@ type UrlRepository interface {
 
 type UrlUseCase interface {
 	Create(ctx context.Context, destination string) (Url, error)
-	CreateWithId(ctx context.Context, id, destination string) (Url, error)
+	CreateWithAlias(ctx context.Context, id, destination string) (Url, error)
 	GetById(ctx context.Context, id string) (Url, error)
 	List(ctx context.Context) ([]Url, error)
 	Delete(ctx context.Context, id string) error

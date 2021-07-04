@@ -132,9 +132,9 @@ func (mr *MockUrlUseCaseMockRecorder) Create(ctx, destination interface{}) *gomo
 }
 
 // CreateWithId mocks base method.
-func (m *MockUrlUseCase) CreateWithId(ctx context.Context, id, destination string) (domain.Url, error) {
+func (m *MockUrlUseCase) CreateWithAlias(ctx context.Context, id, destination string) (domain.Url, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateWithId", ctx, id, destination)
+	ret := m.ctrl.Call(m, "CreateWithAlias", ctx, id, destination)
 	ret0, _ := ret[0].(domain.Url)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -143,7 +143,7 @@ func (m *MockUrlUseCase) CreateWithId(ctx context.Context, id, destination strin
 // CreateWithId indicates an expected call of CreateWithId.
 func (mr *MockUrlUseCaseMockRecorder) CreateWithId(ctx, id, destination interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWithId", reflect.TypeOf((*MockUrlUseCase)(nil).CreateWithId), ctx, id, destination)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWithAlias", reflect.TypeOf((*MockUrlUseCase)(nil).CreateWithAlias), ctx, id, destination)
 }
 
 // Delete mocks base method.

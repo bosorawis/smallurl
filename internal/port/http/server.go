@@ -86,7 +86,7 @@ func (s *Server) handleCreateUrlWithAlias() gin.HandlerFunc {
 			return
 		}
 
-		url, err := s.svc.CreateWithId(c, req.Alias, req.Destination)
+		url, err := s.svc.CreateWithAlias(c, req.Alias, req.Destination)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return

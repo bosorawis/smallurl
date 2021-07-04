@@ -35,7 +35,7 @@ func (u *urlUsecase) Create(ctx context.Context, destination string) (domain.Url
 	return url, nil
 }
 
-func (u *urlUsecase) CreateWithId(ctx context.Context, id, destination string) (domain.Url, error) {
+func (u *urlUsecase) CreateWithAlias(ctx context.Context, id, destination string) (domain.Url, error) {
 	url := domain.Url{
 		ID:          id,
 		Destination: destination,
