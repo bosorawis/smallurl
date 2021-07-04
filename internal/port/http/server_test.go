@@ -108,8 +108,8 @@ func TestHandleCreateUrl(t *testing.T) {
 			sut, _ := New(m)
 			w := performRequestWithBody(sut, http.MethodPost, "/v1", tc.body)
 			resp := w.Result()
-			if resp.StatusCode != http.StatusOK {
-				t.Errorf("want %v got %v", http.StatusOK, resp.StatusCode)
+			if resp.StatusCode != http.StatusCreated {
+				t.Errorf("want %v got %v", http.StatusCreated, resp.StatusCode)
 			}
 			var respBody expectedResponse
 			if err := json.NewDecoder(resp.Body).Decode(&respBody); err != nil {
@@ -183,8 +183,8 @@ func TestHandleCreateUrlWithAlias(t *testing.T) {
 			sut, _ := New(m)
 			w := performRequestWithBody(sut, http.MethodPost, "/v1/alias", tc.body)
 			resp := w.Result()
-			if resp.StatusCode != http.StatusOK {
-				t.Errorf("want %v got %v", http.StatusOK, resp.StatusCode)
+			if resp.StatusCode != http.StatusCreated {
+				t.Fatalf("want %v got %v", http.StatusCreated, resp.StatusCode)
 			}
 			var respBody expectedResponse
 			if err := json.NewDecoder(resp.Body).Decode(&respBody); err != nil {

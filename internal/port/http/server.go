@@ -1,20 +1,19 @@
 package http
 
 import (
-	"encoding/json"
-	"fmt"
+	"errors"
 	"github.com/dihmuzikien/smallurl/domain"
-	"github.com/go-chi/chi/v5"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 type Server struct {
 	svc    domain.UrlUseCase
-	router chi.Router
+	router *gin.Engine
 }
 
 func New(svc domain.UrlUseCase) (*Server, error) {
-	router := chi.NewRouter()
+	router := gin.Default()
 	server := &Server{
 		svc:    svc,
 		router: router,
@@ -23,77 +22,55 @@ func New(svc domain.UrlUseCase) (*Server, error) {
 	return server, nil
 }
 
-func (s *Server) respond(w http.ResponseWriter, r *http.Request, data interface{}, status int) {
-	if data != nil {
-		err := json.NewEncoder(w).Encode(data)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-	}
-	w.WriteHeader(status)
-	w.Header().Set("Content-Type", "application/json")
-}
-
-func (s *Server) decode(w http.ResponseWriter, r *http.Request, data interface{}) error {
-	return json.NewDecoder(r.Body).Decode(data)
-}
-
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
 }
 
-func (s *Server) handleListUrl() http.HandlerFunc {
+func (s *Server) handleListUrl() gin.HandlerFunc {
 	type response struct {
 		ID          string `json:"id"`
 		Destination string `json:"destination"`
 	}
-	return func(w http.ResponseWriter, r *http.Request) {
-		items, err := s.svc.List(r.Context())
+	return func(c *gin.Context) {
+		items, err := s.svc.List(c)
 		if err != nil {
-			fmt.Println("failed to get url", err)
-			http.Error(w, "failed to list URL", 500)
+			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
-		m := make([]response, len(items))
+		responseData := make([]response, len(items))
 		for i, v := range items {
-			m[i] = response{
+			responseData[i] = response{
 				ID:          v.ID,
 				Destination: v.Destination,
 			}
 		}
-		s.respond(w, r, items, http.StatusOK)
+		c.JSON(http.StatusOK, responseData)
 	}
 }
 
-func (s *Server) handleCreateUrl() http.HandlerFunc {
+func (s *Server) handleCreateUrl() gin.HandlerFunc {
 	type request struct {
 		Destination string `json:"destination"`
 	}
 	type response struct {
 		ID string `json:"id"`
 	}
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(c *gin.Context) {
 		var d request
-		err := s.decode(w, r, &d)
+		c.BindJSON(&d)
+		url, err := s.svc.Create(c, d.Destination)
 		if err != nil {
-			fmt.Println("failed to parse body", err)
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		url, err := s.svc.Create(r.Context(), d.Destination)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 		resp := response{
 			ID: url.ID,
 		}
-		s.respond(w, r, resp, http.StatusCreated)
+		c.JSON(http.StatusCreated, resp)
 	}
 }
 
-func (s *Server) handleCreateUrlWithAlias() http.HandlerFunc {
+func (s *Server) handleCreateUrlWithAlias() gin.HandlerFunc {
 	type request struct {
 		Alias       string `json:"alias"`
 		Destination string `json:"destination"`
@@ -101,28 +78,22 @@ func (s *Server) handleCreateUrlWithAlias() http.HandlerFunc {
 	type response struct {
 		ID string `json:"id"`
 	}
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		var d request
-		err := s.decode(w, r, &d)
-		if err != nil {
-			fmt.Println("failed to parse body", err)
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		if len(d.Alias) <= 3 {
-			http.Error(w, "alias must be longer than 3 characters", http.StatusBadRequest)
+	return func(c *gin.Context) {
+		var req request
+		c.BindJSON(&req)
+		if len(req.Alias) <= 3 {
+			c.AbortWithError(http.StatusBadRequest, errors.New("alias must be longer than 3 characters"))
 			return
 		}
 
-		url, err := s.svc.CreateWithId(r.Context(), d.Alias, d.Destination)
+		url, err := s.svc.CreateWithId(c, req.Alias, req.Destination)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 		resp := response{
 			ID: url.ID,
 		}
-		s.respond(w, r, resp, http.StatusCreated)
+		c.JSON(http.StatusCreated, resp)
 	}
 }
