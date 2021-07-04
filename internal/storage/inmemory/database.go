@@ -36,7 +36,7 @@ func (d *Db) Delete(ctx context.Context, id string) error {
 
 func (d *Db) Get(ctx context.Context, id string) (domain.Url, error) {
 	if _, ok := d.storage[id]; !ok {
-		return domain.Url{}, domain.RepoGetNotFoundError
+		return domain.Url{}, domain.NotFoundError
 	}
 	u := d.storage[id]
 	return domain.Url{

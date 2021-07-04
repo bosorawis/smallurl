@@ -12,10 +12,7 @@ type RepoError struct {
 }
 
 var (
-	RepoPutError         = errors.New("failed to save URL")
-	RepoGetNotFoundError = errors.New("cannot find URL with matching ID")
-	RepoListError        = errors.New("failed to list URLs")
-	RepoDeleteError      = errors.New("failed to delete URL")
+	NotFoundError = errors.New("cannot find URL with matching ID")
 )
 
 // Url represents model of URL redirection in the storage

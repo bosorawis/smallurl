@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/dihmuzikien/smallurl/domain"
 	"github.com/dihmuzikien/smallurl/domain/mocks"
 	"github.com/golang/mock/gomock"
@@ -219,6 +220,44 @@ func TestHandleCreateUrlWithAlias(t *testing.T) {
 			if resp.StatusCode != http.StatusBadRequest {
 				t.Errorf("want %v got %v", http.StatusBadRequest, resp.StatusCode)
 			}
+		}
+	})
+}
+
+func TestHandleRedirect(t *testing.T) {
+	t.Run("Test Alias redirect", func(t *testing.T) {
+		testcases := []struct {
+			destination string
+			alias       string
+		}{
+			{
+				alias:       "my-repo-alias",
+				destination: "https://github.com",
+			},
+			{
+				alias:       "my-second-alias",
+				destination: "https://google.com",
+			},
+		}
+		for _, tc := range testcases {
+			ctrl := gomock.NewController(t)
+			t.Cleanup(ctrl.Finish)
+			m := mocks.NewMockUrlUseCase(ctrl)
+			m.EXPECT().GetById(gomock.Any(), gomock.Eq(tc.alias)).Return(domain.Url{ID: tc.alias, Destination: tc.destination}, nil)
+			sut, _ := New(m)
+			w := performRequest(sut, http.MethodGet, fmt.Sprintf("/r/%s", tc.alias))
+			resp := w.Result()
+			if resp.StatusCode != http.StatusMovedPermanently {
+				t.Errorf("want %v got %v", http.StatusMovedPermanently, resp.StatusCode)
+			}
+			got, err := resp.Location()
+			if err != nil {
+				t.Errorf("unexpected error when grabbing location from response %v", err)
+			}
+			if got.String() != tc.destination {
+				t.Errorf("want %v got %v", tc.destination, resp.Request.URL.String())
+			}
+
 		}
 	})
 }

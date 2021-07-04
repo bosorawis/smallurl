@@ -26,7 +26,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.router.ServeHTTP(w, r)
 }
 
-func (s *Server) handleListUrl() gin.HandlerFunc {
+func (s *Server) handleUrlList() gin.HandlerFunc {
 	type response struct {
 		ID          string `json:"id"`
 		Destination string `json:"destination"`
@@ -48,7 +48,7 @@ func (s *Server) handleListUrl() gin.HandlerFunc {
 	}
 }
 
-func (s *Server) handleCreateUrl() gin.HandlerFunc {
+func (s *Server) handleUrlCreate() gin.HandlerFunc {
 	type request struct {
 		Destination string `json:"destination"`
 	}
@@ -70,7 +70,7 @@ func (s *Server) handleCreateUrl() gin.HandlerFunc {
 	}
 }
 
-func (s *Server) handleCreateUrlWithAlias() gin.HandlerFunc {
+func (s *Server) handleUrlCreateWithAlias() gin.HandlerFunc {
 	type request struct {
 		Alias       string `json:"alias"`
 		Destination string `json:"destination"`
@@ -95,5 +95,18 @@ func (s *Server) handleCreateUrlWithAlias() gin.HandlerFunc {
 			ID: url.ID,
 		}
 		c.JSON(http.StatusCreated, resp)
+	}
+}
+
+
+func (s *Server) handleUrlRedirect() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		alias := c.Param("id")
+
+		url, err := s.svc.GetById(c, alias)
+		if err != nil{
+			c.AbortWithError(http.StatusInternalServerError, err)
+		}
+		c.Redirect(http.StatusMovedPermanently, url.Destination)
 	}
 }
