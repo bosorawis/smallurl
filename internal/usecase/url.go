@@ -59,7 +59,7 @@ func (u *urlUsecase) GetById(ctx context.Context, id string) (domain.Url, error)
 func (u *urlUsecase) List(ctx context.Context) ([]domain.Url, error) {
 	result, err := u.articleRepo.List(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("urlusecase: failed to list data %w", err)
+		return nil, err
 	}
 	return result, nil
 }

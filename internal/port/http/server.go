@@ -12,14 +12,14 @@ type Server struct {
 	router *gin.Engine
 }
 
-func New(svc domain.UrlUseCase) (*Server, error) {
+func New(svc domain.UrlUseCase) (*Server) {
 	router := gin.Default()
 	server := &Server{
 		svc:    svc,
 		router: router,
 	}
 	server.routes()
-	return server, nil
+	return server
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {

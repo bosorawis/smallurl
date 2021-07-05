@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/dihmuzikien/smallurl/domain"
 	"github.com/dihmuzikien/smallurl/domain/mocks"
+	"github.com/dihmuzikien/smallurl/internal/storage/inmemory"
+	"github.com/dihmuzikien/smallurl/internal/usecase"
 	"github.com/golang/mock/gomock"
 	"net/http"
 	"net/http/httptest"
@@ -55,7 +57,7 @@ func TestHandleListUrl(t *testing.T) {
 			ID          string `json:"id"`
 			Destination string `json:"destination"`
 		}
-		sut, _ := New(m)
+		sut := New(m)
 		w := performRequest(sut, http.MethodGet, "/v1")
 		resp := w.Result()
 		if resp.StatusCode != http.StatusOK {
@@ -106,7 +108,7 @@ func TestHandleCreateUrl(t *testing.T) {
 					Created:     time.Now(),
 				}, nil)
 
-			sut, _ := New(m)
+			sut := New(m)
 			w := performRequestWithBody(sut, http.MethodPost, "/v1", tc.body)
 			resp := w.Result()
 			if resp.StatusCode != http.StatusCreated {
@@ -118,30 +120,6 @@ func TestHandleCreateUrl(t *testing.T) {
 			}
 			if respBody.ID != tc.generatedId {
 				t.Errorf("want %v but got %v", tc.generatedId, respBody.ID)
-			}
-		}
-	})
-	t.Run("CreateUrlWithAlias invalid alias returns 400", func(t *testing.T) {
-		testcases := []struct {
-			body string
-		}{
-			{
-				body: `{"alias":"","destination": "https://google.com"}`,
-			},
-			{
-				body: `{"alias":"aa","destination": "https://google.com"}`,
-			},
-		}
-		for _, tc := range testcases {
-			ctrl := gomock.NewController(t)
-			t.Cleanup(ctrl.Finish)
-			m := mocks.NewMockUrlUseCase(ctrl)
-			m.EXPECT().CreateWithId(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
-			sut, _ := New(m)
-			w := performRequestWithBody(sut, http.MethodPost, "/v1/alias", tc.body)
-			resp := w.Result()
-			if resp.StatusCode != http.StatusBadRequest {
-				t.Errorf("want %v got %v", http.StatusBadRequest, resp.StatusCode)
 			}
 		}
 	})
@@ -181,7 +159,7 @@ func TestHandleCreateUrlWithAlias(t *testing.T) {
 					Created:     time.Now(),
 				}, nil)
 
-			sut, _ := New(m)
+			sut := New(m)
 			w := performRequestWithBody(sut, http.MethodPost, "/v1/alias", tc.body)
 			resp := w.Result()
 			if resp.StatusCode != http.StatusCreated {
@@ -214,7 +192,7 @@ func TestHandleCreateUrlWithAlias(t *testing.T) {
 			t.Cleanup(ctrl.Finish)
 			m := mocks.NewMockUrlUseCase(ctrl)
 			m.EXPECT().CreateWithId(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
-			sut, _ := New(m)
+			sut := New(m)
 			w := performRequestWithBody(sut, http.MethodPost, "/v1/alias", tc.body)
 			resp := w.Result()
 			if resp.StatusCode != http.StatusBadRequest {
@@ -244,7 +222,7 @@ func TestHandleRedirect(t *testing.T) {
 			t.Cleanup(ctrl.Finish)
 			m := mocks.NewMockUrlUseCase(ctrl)
 			m.EXPECT().GetById(gomock.Any(), gomock.Eq(tc.alias)).Return(domain.Url{ID: tc.alias, Destination: tc.destination}, nil)
-			sut, _ := New(m)
+			sut := New(m)
 			w := performRequest(sut, http.MethodGet, fmt.Sprintf("/r/%s", tc.alias))
 			resp := w.Result()
 			if resp.StatusCode != http.StatusMovedPermanently {
@@ -259,5 +237,54 @@ func TestHandleRedirect(t *testing.T) {
 			}
 
 		}
+	})
+}
+
+func FullFlowTest(t *testing.T) {
+	t.Run("With Alias full create -> redirect", func(t *testing.T) {
+		db := inmemory.New()
+		svc := usecase.NewUrlUseCase(db)
+		sut := New(svc)
+		testcases := []struct {
+			body string
+			alias       string
+			destination string
+		}{
+			{
+				body: `{"alias":"myurl","destination": "https://google.com"}`,
+				alias:       "myurl",
+				destination: "https://google.com",
+			},
+			{
+				body: `{"alias":"another-url","destination": "https://youtube.com"}`,
+				alias:       "another-url",
+				destination: "https://youtube.com",
+			},
+			{
+				body: `{"alias":"not-my-url","destination": "https://squarespace.com"}`,
+				alias:       "not-my-url",
+				destination: "https://squarespace.com",
+			},
+		}
+
+		for _, tc := range testcases {
+			w := performRequestWithBody(sut, http.MethodPost,  "/v1", tc.body)
+			if w.Result().StatusCode != http.StatusCreated {
+				t.Fatalf("want httpstatus %v got %v", http.StatusCreated, w.Result().StatusCode)
+			}
+
+			w = performRequest(sut, http.MethodGet,  "/v1/" + tc.alias)
+			if w.Result().StatusCode != http.StatusMovedPermanently {
+				t.Fatalf("want httpstatus %v got %v", http.StatusMovedPermanently, w.Result().StatusCode)
+			}
+			location, err := w.Result().Location()
+			if err != nil {
+				t.Fatalf("unexpected error getting redirected location %v", err)
+			}
+			if location.String() != tc.destination {
+				t.Fatalf("want %v got %v", location.String(), tc.destination)
+			}
+		}
+
 	})
 }
